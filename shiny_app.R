@@ -21,7 +21,7 @@ library(tidyr)
 data_asthma <- readRDS("/PHI_conf/ScotPHO/Profiles/Investigations/asthma_work/data/asthma_final.rds") %>%
     mutate(rate = round(rate, 1), # round numbers more (one decimal place)
            numerator = case_when(numerator < 5 ~ NA_real_,
-                                 TRUE ~ numerator)) %>%  # supression of under 5
+                                 TRUE ~ numerator)) %>% 
     gather(measure, value, -c(diagnosis, year)) %>%
     mutate(measure = recode(measure, "numerator" = "Number", "rate" = "Rate"))
 
@@ -105,14 +105,14 @@ server <- function(input, output) {
                     type = "scatter", mode = 'lines',
                     width = 650, height = 350) %>% 
       #Layout
-      layout(annotations = list(), #It needs this because of a buggy behaviour
+      layout(annotations = list(),
              yaxis = list(title = yaxistitle, rangemode="tozero", fixedrange=TRUE), 
              xaxis = list(title = "Financial year",  fixedrange=TRUE, tickangle = 270),  
-             font = list(family = 'Arial, sans-serif'), #font
-             margin = list(pad = 4, t = 50, r = 30), #margin-paddings
-             hovermode = 'false',  # to get hover compare mode as default
+             font = list(family = 'Arial, sans-serif'), 
+             margin = list(pad = 4, t = 50, r = 30), 
+             hovermode = 'false',  
              images = scotpho_logo) %>% 
-      config(displayModeBar= T, displaylogo = F) # taking out plotly logo and collaborate button
+      config(displayModeBar= T, displaylogo = F) 
   }
   ) 
   
