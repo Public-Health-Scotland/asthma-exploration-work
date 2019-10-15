@@ -30,6 +30,8 @@ data_folder <- "/PHI_conf/ScotPHO/Profiles/Investigations/asthma_work/data/"
 channel <- suppressWarnings(dbConnect(odbc(),  dsn="SMRA",
                                       uid=.rs.askForPassword("SMRA Username:"), 
                                       pwd=.rs.askForPassword("SMRA Password:")
+                                      
+                            
 ))
 
 
