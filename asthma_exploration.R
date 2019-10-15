@@ -95,7 +95,7 @@ data_asthma <- tbl_df(dbGetQuery(channel, statement=
                 OR regexp_like(other_condition_2, '^R062')   
                 OR regexp_like(other_condition_3, '^R062') 
                 OR regexp_like(other_condition_4, '^R062')   
-                OR regexp_like(other_condition_5, '^R062')) THEN 1 ELSE 0 END as B349_other_R062,
+                OR regexp_like(other_condition_5, '^R062')) THEN 1 ELSE 0 END as B349_anyother_R062,
       CASE WHEN (regexp_like(main_condition, '^B349')
                 OR regexp_like(other_condition_1, '^B349') 
                 OR regexp_like(other_condition_2, '^B349')   

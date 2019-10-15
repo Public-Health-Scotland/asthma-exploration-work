@@ -19,11 +19,7 @@ library(shiny)
 library(tidyr)
 # 
 data_asthma <- readRDS("/PHI_conf/ScotPHO/Profiles/Investigations/asthma_work/data/asthma_final.rds") %>%
-    mutate(rate = round(rate, 1), # round numbers more (one decimal place)
-           numerator = case_when(numerator < 5 ~ NA_real_,
-                                 TRUE ~ numerator)) %>% 
-    gather(measure, value, -c(diagnosis, year)) %>%
-    mutate(measure = recode(measure, "numerator" = "Number", "rate" = "Rate"))
+    mutate(rate = round(rate, 1)) # round numbers more (one decimal place)
 
 #data folder used
 data_folder <- "/PHI_conf/ScotPHO/Profiles/Investigations/asthma_work/data/"
@@ -43,41 +39,43 @@ scotpho_logo <-  list(source ="https://raw.githubusercontent.com/ScotPHO/plotly-
 ############################.
 #Height and widths as percentages to allow responsiveness
 #Using divs as issues with classing css 
-ui <- fluidPage(style="width: 650px; height: 500px; ", 
-                div(style= "width:100%", #Filters on top of page
-                    h4("Time trend of hospital admissions for asthma"),
-                    div(style = "width: 50%; float: left;",
+ui <- fluidPage(h4("Time trend of hospital admissions for asthma"),
+                  column(6,
                         selectInput("measure", label = "Select numerator or rates",
-                                    choices = c("Numerator", "Rate"), selected = "Rate")
-                    ),
-                    div(style = "width: 50%; float: left;",
-                        selectInput("sex", label = "Select sex",
-                                    choices = c("Male", "Female"), selected = "Male")
-                    ),
-                    div(style = "width: 50%; float: left;",
-                        selectizeInput("age_grp", label = "Select age group", 
-                                       choices = c("Over 10", "Under 10", "All"), selected = "All")
-                        
-                    ),
-                    div(style = "width: 50%; float: left;",
+                                    choices = c("Numerator", "Rate"), selected = "Rate")),
+                        # selectInput("sex", label = "Select sex",
+                        #             choices = c("Male", "Female"), selected = "Male")),
+                        column(6,
+                               # selectizeInput("age_grp", label = "Select age group", 
+                               #         choices = c("Over 10", "Under 10", "All"), selected = "All"),
                         selectizeInput("diagnosis", label = "Select one or more diagnosis", 
                                        choices = diagnosis_list, multiple = TRUE, selected = "Status asthmaticus (J46) first position"),
-                                       options = list(maxItems =4L))),
-                        
-                
-                div(style= "width:100%; float: left;", #Main panel
-                    plotlyOutput("chart", width = "100%", height = "350px"),
-                    p(div(style = "width: 25%; float: left;", #Footer
-                          HTML("Source: <a href='http://www.isdscotland.org/Health-Topics/Hospital-Care/Diagnoses/'>ISD, SMR 01</a>")),
-                      div(style = "width: 25%; float: left;",
-                          downloadLink('download_data', 'Download data')),
-                      div(style = "width: 100%; float: left;",
-                          h6("Notes: These statistics are derived from data collected on discharges from hospitals for non-obstetric and 
+                                       options = list(maxItems =4L)),
+                mainPanel(width=12,
+                          column(6,
+                          plotlyOutput("male_all", width = "100%"), title="Males All Ages"),
+                          column(6,
+                                 plotlyOutput("female_all", width = "100%"), title="Females All Ages"),
+                          column(6,
+                                 plotlyOutput("male_under10", width = "100%"), title="Males Under 10"),
+                          column(6,
+                                 plotlyOutput("female_under10", width = "100%"), title="Females Under 10"),
+                          column(6,
+                                 plotlyOutput("male_over10", width = "100%"), title="Males Over 10"),
+                          column(6,
+                                 plotlyOutput("female_over10", width = "100%"), title="Females Over 10"),
+                          div(style= "width:100%; float: left;", #Main panel
+                              p(div(style = "width: 25%; float: left;", #Footer
+                                    HTML("Source: <a href='http://www.isdscotland.org/Health-Topics/Hospital-Care/Diagnoses/'>ISD, SMR 01</a>")),
+                                div(style = "width: 25%; float: left;",
+                                    downloadLink('download_data', 'Download data')),
+                                div(style = "width: 100%; float: left;",
+                                    h6("Notes: These statistics are derived from data collected on discharges from hospitals for non-obstetric and 
     non-psychiatric hospitals (SMR01) in Scotland.", tags$br())
-                      )
-                    )
-                ))
-      #fluid page bracket
+                                )
+                              ))
+                ) #main panel bracket
+              ) #fluid page bracket
 
 ############################.
 ## Server ----
@@ -86,37 +84,50 @@ server <- function(input, output) {
   
   # Allowing user to download data
   output$download_data <- downloadHandler( 
-    filename =  'asthma_final.rds', content = function(file) { 
-      write.csv(asthma_final, file, row.names=FALSE) })
+    filename =  'asthma_final.csv', content = function(file) { 
+      write.csv(data_filtered(), file, row.names=FALSE) })
   
-  ############################.
-  #Visualization
-  output$chart <- renderPlotly({
-    
+  #reactive data
+  data_filtered <- reactive({
     #Data for condition
-    data_diagnosis <- data_asthma %>% subset(diagnosis %in% input$diagnosis & measure==input$measure)
+    data_diagnosis <- data_asthma %>% subset(diagnosis %in% input$diagnosis)
+  })
+  
+  plot_charts <- function(sex_chosen, age_grp_chosen) {
+    
+    data_plot <- data_asthma %>% subset(diagnosis %in% input$diagnosis & 
+                                          sex == sex_chosen &
+                                          age_grp == age_grp_chosen)
+    
     
     #y axis title
-    yaxistitle <- case_when(input$measure == "Number" ~ "Number of hospital admissions",
+    yaxistitle <- case_when(input$measure == "Numerator" ~ "Number of hospital admissions",
                             input$measure == "Rate" ~ "Hospital admissions <br>per 100,000 population")
     
-    plot <- plot_ly(data=data_diagnosis, x=~year, y = ~value, color = ~diagnosis,
+    plot <- plot_ly(data=data_plot, x=~year, y = ~get(tolower(input$measure)), color = ~diagnosis,
                     colors = c('#abd9e9', '#74add1', '#4575b4', '#313695', '#022031'),
-                    type = "scatter", mode = 'lines',
-                    width = 650, height = 350) %>% 
+                    type = "scatter", mode = 'lines') %>% 
       #Layout
       layout(annotations = list(),
              yaxis = list(title = yaxistitle, rangemode="tozero", fixedrange=TRUE), 
              xaxis = list(title = "Financial year",  fixedrange=TRUE, tickangle = 270),  
              font = list(family = 'Arial, sans-serif'), 
              margin = list(pad = 4, t = 50, r = 30), 
-             hovermode = 'false',  
-             images = scotpho_logo) %>% 
+             hovermode = 'false') %>% 
       config(displayModeBar= T, displaylogo = F) 
+    
   }
-  ) 
   
+  ############################.
+  #Visualization
+  output$male_all <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "All")}) 
+  output$female_all <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "All")}) 
+  output$male_under10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Under 10")})
+  output$female_under10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Under 10")}) 
+  output$male_over10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Over 10")}) 
+  output$female_over10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Over 10")}) 
 } # end of server part
+
 
 ############################.
 ## Calling app ----
