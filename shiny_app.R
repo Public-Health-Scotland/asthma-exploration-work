@@ -73,7 +73,7 @@ ui <- fluidPage(h4("Time trend of hospital admissions for asthma"),
                                 )
                               ))
                 ) #main panel bracket
-              ) #fluid page bracket
+            ) #fluid page bracket
 
 ############################.
 ## Server ----
