@@ -51,17 +51,17 @@ ui <- fluidPage(h4("Time trend of hospital admissions for asthma"),
                                        options = list(maxItems =4L)),
                 mainPanel(width=12,
                           column(6,
-                          plotlyOutput("male_all", width = "100%"), title="Males All Ages"),
+                                plotlyOutput("male_all", width = "100%")),
                           column(6,
-                                 plotlyOutput("female_all", width = "100%"), title="Females All Ages"),
+                                 plotlyOutput("female_all", width = "100%")),
                           column(6,
-                                 plotlyOutput("male_under10", width = "100%"), title="Males Under 10"),
+                                 plotlyOutput("male_under10", width = "100%")),
                           column(6,
-                                 plotlyOutput("female_under10", width = "100%"), title="Females Under 10"),
+                                 plotlyOutput("female_under10", width = "100%")),
                           column(6,
-                                 plotlyOutput("male_over10", width = "100%"), title="Males Over 10"),
+                                 plotlyOutput("male_over10", width = "100%")),
                           column(6,
-                                 plotlyOutput("female_over10", width = "100%"), title="Females Over 10"),
+                                 plotlyOutput("female_over10", width = "100%")),
                           div(style= "width:100%; float: left;", #Main panel
                               p(div(style = "width: 25%; float: left;", #Footer
                                     HTML("Source: <a href='http://www.isdscotland.org/Health-Topics/Hospital-Care/Diagnoses/'>ISD, SMR 01</a>")),
@@ -118,12 +118,12 @@ server <- function(input, output) {
   
   ############################.
   #Visualization
-  output$male_all <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "All")}) 
-  output$female_all <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "All")}) 
-  output$male_under10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Under 10")})
-  output$female_under10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Under 10")}) 
-  output$male_over10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Over 10")}) 
-  output$female_over10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Over 10")}) 
+  output$male_all <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "All") %>% layout(title = "Males All Ages")}) 
+  output$female_all <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "All") %>% layout(title = "Females All Ages")}) 
+  output$male_under10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Under 10") %>% layout(title = "Males Under 10")})
+  output$female_under10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Under 10") %>% layout(title = "Females Under 10")}) 
+  output$male_over10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Over 10") %>% layout(title = "Males Over 10")}) 
+  output$female_over10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Over 10") %>% layout(title = "Females Over 10")}) 
 } # end of server part
 
 
