@@ -2,8 +2,6 @@
 
 ## WORK IN PROGRESS ##
 
-## APP RUNS BUT SOME THINGS ARE GOING HORRIBLY WRONG ##
-
 ############################.
 ## Global ----
 ############################.
