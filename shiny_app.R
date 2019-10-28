@@ -50,17 +50,17 @@ ui <- fluidPage(h4("Time trend of hospital admissions for asthma"),
                                        choices = diagnosis_list, multiple = TRUE, selected = "Status asthmaticus (J46) first position"),
                                        options = list(maxItems =4L)),
                 mainPanel(width=12,
-                          column(6,
-                                plotlyOutput("male_all", width = "100%")),
-                          column(6,
-                                 plotlyOutput("female_all", width = "100%")),
-                          column(6,
-                                 plotlyOutput("male_under10", width = "100%")),
-                          column(6,
-                                 plotlyOutput("female_under10", width = "100%")),
-                          column(6,
-                                 plotlyOutput("male_over10", width = "100%")),
-                          column(6,
+                          column(4,
+                                 plotlyOutput("all_all", width = "100%"),
+                                 plotlyOutput("all_under10", width = "100%"),
+                                 plotlyOutput("all_over10", width = "100%")),
+                          column(4,
+                                plotlyOutput("male_all", width = "100%"),
+                                plotlyOutput("male_under10", width = "100%"),
+                                plotlyOutput("male_over10", width = "100%")),
+                          column(4,
+                                 plotlyOutput("female_all", width = "100%"),
+                                 plotlyOutput("female_under10", width = "100%"),
                                  plotlyOutput("female_over10", width = "100%")),
                           div(style= "width:100%; float: left;", #Main panel
                               p(div(style = "width: 25%; float: left;", #Footer
@@ -108,23 +108,28 @@ server <- function(input, output) {
       #Layout
       layout(annotations = list(),
              yaxis = list(title = yaxistitle, rangemode="tozero", fixedrange=TRUE), 
-             xaxis = list(title = "Financial year",  fixedrange=TRUE, tickangle = 270),  
+             xaxis = list(title = F,  fixedrange=TRUE, tickangle = 270),  
              font = list(family = 'Arial, sans-serif'), 
-             margin = list(pad = 4, t = 50, r = 30), 
-             hovermode = 'false') %>% 
-      config(displayModeBar= T, displaylogo = F) 
+             margin = list(pad = 4, t = 150), 
+             hovermode = 'false',
+             legend = list(orientation = 'h', x = 0, y = 1.45)) %>% 
+      config(displayModeBar= F, displaylogo = F) 
     
   }
   
   ############################.
   #Visualization
+  output$all_all <- renderPlotly({ plot_charts(sex_chosen = "All", age_grp_chosen = "All") %>% layout(title = "All sexes All Ages")}) 
   output$male_all <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "All") %>% layout(title = "Males All Ages")}) 
   output$female_all <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "All") %>% layout(title = "Females All Ages")}) 
+  output$all_under10 <- renderPlotly({ plot_charts(sex_chosen = "All", age_grp_chosen = "Under 10") %>% layout(title = "All sexes Under 10")})
   output$male_under10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Under 10") %>% layout(title = "Males Under 10")})
   output$female_under10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Under 10") %>% layout(title = "Females Under 10")}) 
+  output$all_over10 <- renderPlotly({ plot_charts(sex_chosen = "All", age_grp_chosen = "Over 10") %>% layout(title = "All sexes Over 10")}) 
   output$male_over10 <- renderPlotly({ plot_charts(sex_chosen = "Male", age_grp_chosen = "Over 10") %>% layout(title = "Males Over 10")}) 
   output$female_over10 <- renderPlotly({ plot_charts(sex_chosen = "Female", age_grp_chosen = "Over 10") %>% layout(title = "Females Over 10")}) 
-} # end of server part
+  
+  } # end of server part
 
 
 ############################.
