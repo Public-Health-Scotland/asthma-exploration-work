@@ -229,7 +229,7 @@ final_data <- final_data %>%
                              age_grp2 == 2 ~ "Over 10"),
          year = paste0(year, "/", substr(year+1, 3,4)),
          diagnosis = recode(diagnosis, "anypos_b349_r062" = "B349 and R062 appearing together in any positions",
-                            "anyotherpos_B349_R062" = "B349 and R062 appearing together in positions 2 - 6",
+                            "anyotherpos_b349_r062" = "B349 and R062 appearing together in positions 2 - 6",
                             "b349_anyother_r062"  = "Viral wheeze (B349 first, R602 in pos 2 to 6)", 
                             "b349_main" = "Viral infection first position", 
                             "b349_other1_r062" = "Viral wheeze (B349 followed by R602 in pos 2)", 
